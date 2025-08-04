@@ -1,0 +1,4 @@
+{
+    "python.defaultInterpreterPath": "./venv/bin/python",
+    "terminal.integrated.shellArgs.osx": ["-c", "source venv/bin/activate && exec bash"]
+}

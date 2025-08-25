@@ -15,6 +15,6 @@ class ClarifyAgent:
     def clarify_agent(self, state: dict) -> dict:
         return {
             "lnode": "clarify_agent",
-            "incrementalResponse": self.generate_response(state['message_history']),
+            "incremental_response": self.generate_response(state['message_history']),
             "category": "clarify"
         }

@@ -15,6 +15,6 @@ class SmallTalkAgent:
     def smalltalk_agent(self, state: dict) -> dict:
         return {
             "lnode": "smalltalk_agent",
-            "incrementalResponse": self.generate_response(state['message_history']),
+            "incremental_response": self.generate_response(state['message_history']),
             "category": "smalltalk"
         }

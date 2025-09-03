@@ -1,24 +1,24 @@
 import streamlit as st
 from typing import TypedDict
 from pydantic import BaseModel
-from langchain_openai import ChatOpenAI
 from langgraph.graph import StateGraph, START, END
+from langchain_openai import ChatOpenAI
 from langchain_core.messages import BaseMessage
 from prompt_store import get_prompt
 from create_llm_message import create_llm_msg
+from smalltalk_agent import SmallTalkAgent
 from clarify_agent import ClarifyAgent
 from policy_agent import PolicyAgent
 from quota_agent import QuotaAgent
 from segmentation_agent import SegmentationAgent
-from smalltalk_agent import SmallTalkAgent
 from STARDT_agent import StardtAgent
 
 class AgentState(TypedDict):
     lnode: str
-    message_history: list[BaseMessage]
     category: str
-    initial_message: str
     incremental_response: str
+    initial_message: str
+    message_history: list[BaseMessage]
 
 class Category(BaseModel):
     category: str
@@ -37,7 +37,6 @@ class SalesOpsAgent:
         self.stardt_agent_class = StardtAgent(self.model)
 
         workflow = StateGraph(AgentState)
-
         workflow.add_node("classifier", self.initial_classifier)
         workflow.add_node("smalltalk", self.smalltalk_agent_class.smalltalk_agent)
         workflow.add_node("clarify", self.clarify_agent_class.clarify_agent)
@@ -47,6 +46,7 @@ class SalesOpsAgent:
         workflow.add_node("stardt", self.stardt_agent_class.stardt_agent)
 
         workflow.add_conditional_edges("classifier", self.main_router)
+        workflow.add_edge(START, "classifier")
         workflow.add_edge("smalltalk", END)
         workflow.add_edge("clarify", END)
         workflow.add_edge("policy", END)
@@ -67,3 +67,11 @@ class SalesOpsAgent:
             "lnode": "initial classifier",
             "category": category,
         }
+    
+    def main_router(self, state: AgentState):
+        main_category = state['category']
+        if main_category in VALID_CATEGORIES:
+            return main_category
+        else:
+            print(f"Unknown category: {category}")
+            return END

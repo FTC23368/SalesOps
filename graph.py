@@ -6,8 +6,8 @@ from langchain_openai import ChatOpenAI
 from langchain_core.messages import BaseMessage
 from prompt_store import get_prompt
 from create_llm_message import create_llm_msg
-from smalltalk_agent import SmallTalkAgent
 from clarify_agent import ClarifyAgent
+from smalltalk_agent import SmallTalkAgent
 from policy_agent import PolicyAgent
 from quota_agent import QuotaAgent
 from segmentation_agent import SegmentationAgent
@@ -37,6 +37,7 @@ class SalesOpsAgent:
         self.stardt_agent_class = StardtAgent(self.model)
 
         workflow = StateGraph(AgentState)
+
         workflow.add_node("classifier", self.initial_classifier)
         workflow.add_node("smalltalk", self.smalltalk_agent_class.smalltalk_agent)
         workflow.add_node("clarify", self.clarify_agent_class.clarify_agent)
@@ -54,7 +55,7 @@ class SalesOpsAgent:
         workflow.add_edge("segmentation", END)
         workflow.add_edge("stardt", END)
 
-        self.graph = workflow.compile()
+        graph = workflow.compile()
 
     def initial_classifier(self, state: AgentState):
         print("initial classifier")
@@ -62,10 +63,9 @@ class SalesOpsAgent:
         llm_messages = create_llm_msg(classifier_prompt, state['message_history'])
         llm_response = self.model.with_structured_output(Category).invoke(llm_messages)
         category = llm_response.category
-        print(f"category is {category}")
         return {
             "lnode": "initial classifier",
-            "category": category,
+            "category": category
         }
     
     def main_router(self, state: AgentState):
@@ -73,5 +73,5 @@ class SalesOpsAgent:
         if main_category in VALID_CATEGORIES:
             return main_category
         else:
-            print(f"Unknown category: {category}")
+            print(f"Unknown category: {main_category}")
             return END

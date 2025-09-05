@@ -8,8 +8,8 @@ class SmallTalkAgent:
 
     def generate_response(self, message_history: list[BaseMessage]):
         user_query = message_history[-1].content
-        smalltalk_prompt = get_prompt("smalltalk")
-        llm_messages = create_llm_msg(smalltalk_prompt, message_history).format(user_query=user_query)
+        smalltalk_prompt = get_prompt("smalltalk").format(user_query=user_query)
+        llm_messages = create_llm_msg(smalltalk_prompt, message_history)
         return self.model.stream(llm_messages)
     
     def smalltalk_agent(self, state: dict) -> dict:

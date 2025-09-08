@@ -37,5 +37,5 @@ def get_prompt(prompt_name):
         "stardt": STARDT_PROMPT,
     }
 
-    prompt_text = prompt_mapping.get(prompt_name, f"Missing Prompt: {prompt_name}")
+    prompt_text = prompt_mapping.get(prompt_name, f"Missing prompt: {prompt_name}")
     return prompt_text

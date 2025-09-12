@@ -1,5 +1,22 @@
 CLASSIFIER_PROMPT = """
-Placeholder
+You are a message classifier. Your job is to classify user messages into exactly one category.
+
+Analyze the user's message and return ONLY the category name. Do not provide explanations or additional text.
+
+Categories:
+- **smalltalk**: Greetings, general conversation, casual comments
+- **clarify**: Unclear requests that need more information  
+- **policy**: Questions related to policy
+- **quota**: Questions related to quota setting
+- **segmentation**: Questions related to customer segments
+- **stardt**: Questions related to territory setting
+
+Examples:
+- "Hi there" → smalltalk
+- "How are you?" → smalltalk  
+- "I need help" → clarify
+
+Return only one word: smalltalk, clarify, policy, quota, segmentation, stardt.
 """
 
 SMALLTALK_PROMPT = """

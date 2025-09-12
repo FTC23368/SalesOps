@@ -1,6 +1,6 @@
 from langchain_core.messages import BaseMessage
 from prompt_store import get_prompt
-from create_llm_messages import create_llm_msg
+from create_llm_message import create_llm_msg
 
 class SmallTalkAgent:
     def __init__(self, model):

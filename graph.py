@@ -1,13 +1,13 @@
 import streamlit as st
 from typing import TypedDict
 from pydantic import BaseModel
-from langgraph.graph import StateGraph, START, END
-from langchain_openai import ChatOpenAI
 from langchain_core.messages import BaseMessage
+from langchain_openai import ChatOpenAI
+from langgraph.graph import StateGraph, START, END
 from prompt_store import get_prompt
 from create_llm_message import create_llm_msg
-from clarify_agent import ClarifyAgent
 from smalltalk_agent import SmallTalkAgent
+from clarify_agent import ClarifyAgent
 from policy_agent import PolicyAgent
 from quota_agent import QuotaAgent
 from segmentation_agent import SegmentationAgent
@@ -16,9 +16,9 @@ from STARDT_agent import StardtAgent
 class AgentState(TypedDict):
     lnode: str
     category: str
-    incremental_response: str
+    message_history: str
     initial_message: str
-    message_history: list[BaseMessage]
+    incremental_response: list[BaseMessage]
 
 class Category(BaseModel):
     category: str
@@ -27,7 +27,7 @@ VALID_CATEGORIES = ["smalltalk", "clarify", "policy", "quota", "segmentation", "
 
 class SalesOpsAgent:
     def __init__(self, api_key):
-        self.model = ChatOpenAI(model=st.secrets['OPENAI_MODEL'], api_key=api_key)
+        self.model = ChatOpenAI(model='gpt-4.1-mini', api_key=api_key)
 
         self.smalltalk_agent_class = SmallTalkAgent(self.model)
         self.clarify_agent_class = ClarifyAgent(self.model)
@@ -55,7 +55,7 @@ class SalesOpsAgent:
         workflow.add_edge("segmentation", END)
         workflow.add_edge("stardt", END)
 
-        graph = workflow.compile()
+        self.graph = workflow.compile()
 
     def initial_classifier(self, state: AgentState):
         print("initial classifier")
@@ -63,11 +63,12 @@ class SalesOpsAgent:
         llm_messages = create_llm_msg(classifier_prompt, state['message_history'])
         llm_response = self.model.with_structured_output(Category).invoke(llm_messages)
         category = llm_response.category
+        print(f"category is {category}")
         return {
             "lnode": "initial classifier",
             "category": category
         }
-    
+
     def main_router(self, state: AgentState):
         main_category = state['category']
         if main_category in VALID_CATEGORIES:

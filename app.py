@@ -1,6 +1,6 @@
 import random
 import streamlit as st
-from langchain_core.messages import BaseMessage, HumanMessage, AIMessage
+from langchain_core.messages import HumanMessage, AIMessage
 from graph import SalesOpsAgent
 
 def start_chat():
@@ -40,27 +40,14 @@ def start_chat():
             "message_history": message_history,
         }
 
-        with st.spinner("Thinking ...", show_time=True):
+        with st.spinner("Thinking..", show_time=True):
             full_response = ""
             placeholder = None
-            
+
             for step in app.graph.stream(parameters, thread):
-                # Look for incremental responses in any node output
                 for node_output in step.values():
-                    if isinstance(node_output, dict) and "incremental_response" in node_output:
-                        # Create chat message container only once
-                        if placeholder is None:
-                            with st.chat_message("assistant"):
-                                placeholder = st.empty()
-                        
-                        # Stream the incremental response
-                        for response in node_output["incremental_response"]:
-                            full_response += response.content
-                            placeholder.markdown(full_response)
-            
-            # Add to session state only after all streaming is complete
-            if full_response:
-                st.session_state.messages.append({"role": "assistant", "content": full_response})
+                    
+
 
 if __name__ == '__main__':
     start_chat()

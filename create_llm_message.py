@@ -1,4 +1,4 @@
-from langchain_core.messages import SystemMessage, BaseMessage
+from langchain_core.messages import BaseMessage, SystemMessage
 
 def create_llm_msg(system_prompt: str, message_history: list[BaseMessage]):
     resp = []

@@ -1,6 +1,6 @@
 import random
 import streamlit as st
-from langchain_core.messages import HumanMessage, AIMessage
+from langchain_core.messages import BaseMessage, HumanMessage, AIMessage
 from graph import SalesOpsAgent
 
 def start_chat():
@@ -42,11 +42,18 @@ def start_chat():
 
         with st.spinner("Thinking..", show_time=True):
             full_response = ""
-            placeholder = None
 
-            for step in app.graph.stream(parameters, thread):
-                for node_output in step.values():
-                    
+            with st.chat_message("assistant"):
+                placeholder = st.empty()
+                
+                for step in app.graph.stream(parameters, thread):
+                    for _, v in step.items():
+                        if resp := v.get("incremental_response"):
+                            for response in resp:
+                                full_response += response.content
+                                placeholder.markdown(full_response)
+                
+                st.session_state.messages.append({"role": "assistant", "content": full_response})
 
 
 if __name__ == '__main__':

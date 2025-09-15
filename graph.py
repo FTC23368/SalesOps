@@ -1,9 +1,9 @@
 import streamlit as st
 from typing import TypedDict
 from pydantic import BaseModel
-from langchain_core.messages import BaseMessage
 from langchain_openai import ChatOpenAI
 from langgraph.graph import StateGraph, START, END
+from langchain_core.messages import BaseMessage
 from prompt_store import get_prompt
 from create_llm_message import create_llm_msg
 from smalltalk_agent import SmallTalkAgent
@@ -16,9 +16,9 @@ from STARDT_agent import StardtAgent
 class AgentState(TypedDict):
     lnode: str
     category: str
-    message_history: str
+    incremental_response: str
     initial_message: str
-    incremental_response: list[BaseMessage]
+    message_history: list[BaseMessage]
 
 class Category(BaseModel):
     category: str
@@ -27,7 +27,7 @@ VALID_CATEGORIES = ["smalltalk", "clarify", "policy", "quota", "segmentation", "
 
 class SalesOpsAgent:
     def __init__(self, api_key):
-        self.model = ChatOpenAI(model='gpt-4.1-mini', api_key=api_key)
+        self.model = ChatOpenAI(model=st.secrets['OPENAI_MODEL'], api_key=api_key)
 
         self.smalltalk_agent_class = SmallTalkAgent(self.model)
         self.clarify_agent_class = ClarifyAgent(self.model)
@@ -60,17 +60,17 @@ class SalesOpsAgent:
     def initial_classifier(self, state: AgentState):
         print("initial classifier")
         classifier_prompt = get_prompt("classifier")
-        llm_messages = create_llm_msg(classifier_prompt, state['message_history'])
+        llm_messages = create_llm_msg(classifier_prompt, state["message_history"])
         llm_response = self.model.with_structured_output(Category).invoke(llm_messages)
         category = llm_response.category
         print(f"category is {category}")
         return {
             "lnode": "initial classifier",
-            "category": category
+            "category": category,
         }
 
     def main_router(self, state: AgentState):
-        main_category = state['category']
+        main_category = state["category"]
         if main_category in VALID_CATEGORIES:
             return main_category
         else:
